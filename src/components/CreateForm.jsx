@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { useNavigate } from 'react-router-dom'
 import { Toaster } from "@/components/ui/toaster"
+import { useAuth } from '../context/AuthContext'
 
 const CreateForm = () => {
   const [formTitle, setFormTitle] = useState('')
@@ -33,6 +34,7 @@ const CreateForm = () => {
   const [isCopied, setIsCopied] = useState(false)
   const [shareLink,setShareLink]=useState('')
   const { toast } = useToast()
+  const {authToken}=useAuth()
   const questionTypes = [
     'Multiple Choice',
     'Multiple Option',
@@ -311,6 +313,7 @@ const CreateForm = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Toaster/>
     </div>
   )
 }
