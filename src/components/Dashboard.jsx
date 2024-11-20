@@ -1,10 +1,14 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import FormCard from './commonComponents/FormCard'
-
+import { BASE_URL } from '../../config.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
+import { BLoader } from './commonComponents/BigLoader.jsx'
+import {Toaster} from '@/components/ui/toaster'
+import {useToast} from '@/hooks/use-toast'
 const mockForms = [
   {
     id: 1,
@@ -15,7 +19,7 @@ const mockForms = [
     submissionCount: 0,
   },
   {
-    id: 1,
+    id: 2,
     title: "Untitled Form",
     description: "Add Description",
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
@@ -23,7 +27,7 @@ const mockForms = [
     submissionCount: 0,
   },
   {
-    id: 1,
+    id: 3,
     title: "Untitled Form",
     description: "Add Description",
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
@@ -31,99 +35,58 @@ const mockForms = [
     submissionCount: 0,
   },
   {
-    id: 1,
+    id: 4,
     title: "Untitled Form",
     description: "Add Description",
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
     questionCount: 4,
     submissionCount: 0,
-  },
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
+  }
   // Add more mock data as needed
 ]
 
 
 const Dashboard = () => {
   const navigate=useNavigate()
+  const {authToken}=useAuth()
+  const [forms,setForms]=useState([])
+  const[noForms,setNoForms]=useState(false)
+  const [isLoading,setIsLoading]=useState(false)
+  const {toast}=useToast()
+
+useEffect(()=>{
+  const fetchForms=async()=>{
+    try {
+      setIsLoading(true)
+      const response=await fetch(`${BASE_URL}/form`,{
+        method:"GET",
+        headers:{
+          Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+        }
+      })
+
+      if(!response.ok){
+        throw new Error("Error while fetching forms")
+      }
+
+      const result=await response.json()
+      if(result.content.length===0){
+        setNoForms(true)
+      }
+      else{
+        setNoForms(false)
+      }
+      setForms(result.content)
+    } catch (error) {
+        console.log("error :",error)
+    }
+    finally{
+      setIsLoading(false)
+    }
+  }
+  fetchForms()
+},[])
   const handleCreateForm=()=>{
     navigate('/form')
   }
@@ -155,12 +118,22 @@ const Dashboard = () => {
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockForms.map((form) => (
-          <FormCard key={form.id} form={form} />
+      {isLoading ? <BLoader/> : 
+      noForms ? (<div className="flex flex-col items-center justify-center space-y-4 border border-gray-200 rounded-lg p-6 bg-gray-50 text-center">
+            <p className="text-gray-500 text-lg">No forms created yet.</p>
+            <Button className='w-full md:w-auto' onClick={()=>handleCreateForm()}>
+            + Create New Form
+          </Button>
+          </div>):(
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {forms.map((form) => (
+          <FormCard key={form._id} form={form} />
         ))}
       </div>
+      )}
+      
     </div>
+    <Toaster/>
     </>
   )
 }

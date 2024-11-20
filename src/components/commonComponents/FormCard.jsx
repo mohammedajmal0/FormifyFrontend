@@ -5,7 +5,6 @@ import { Link2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from "@/hooks/use-toast"
-import { Toaster } from "@/components/ui/toaster"
 import { FE_URL } from '../../../config'
 
 const FormCard = ({ form }) => {
@@ -14,7 +13,7 @@ const FormCard = ({ form }) => {
 
   const handleCopyLink = (e) => {
     e.stopPropagation()
-    const link = `${FE_URL}/form/${form.id}`
+    const link = `${FE_URL}/form/response/${form._id}`
     navigator.clipboard.writeText(link)
     toast({
       title: "Link copied",
@@ -24,13 +23,13 @@ const FormCard = ({ form }) => {
 
   const handleManage = (e) => {
     e.stopPropagation()
-    navigate(`/manage/${form.id}`)
+    navigate(`/manage/${form._id}`)
   }
 
   return (
     <Card 
-      className="p-4 cursor-pointer hover:shadow-lg transition-shadow"
-      onClick={() => navigate(`/manage/${form.id}`)}
+      className="p-3 cursor-pointer hover:shadow-lg transition-shadow"
+      onClick={() => navigate(`/form/${form._id}`)}
     >
       <div className="space-y-3">
         <div>
@@ -39,8 +38,8 @@ const FormCard = ({ form }) => {
         </div>
         
         <div className="space-y-0.5">
-          <p className="text-gray-600 text-sm">{form.questionCount} Questions</p>
-          <p className="text-gray-600 text-sm">{form.submissionCount} Submissions</p>
+          <p className="text-gray-600 text-sm">{form.totalQuestion} Questions</p>
+          <p className="text-gray-600 text-sm">{form.totalSubmission} Submissions</p>
           <p className="text-gray-600 text-sm">
             Created {formatDistanceToNow(form.createdAt, { addSuffix: true })}
           </p>
@@ -67,14 +66,14 @@ const FormCard = ({ form }) => {
         <div className="flex mt-4">
           <Button
             variant="outline"
-            className="flex-1 flex items-center justify-center text-xs px-3 py-1.5 border-r border-black hover:bg-gray-100"
+            className="flex-1 flex items-center justify-center text-s px-3 py-1.5 border-r border-black hover:bg-gray-100 m-3"
             onClick={handleCopyLink}
           >
             <Link2 className="w-3 h-3 mr-1" />
             Copy Form Link
           </Button>
           <Button
-            className="flex-1 flex items-center justify-center text-xs px-3 py-1.5 bg-black text-white hover:bg-gray-800"
+            className="flex-1 flex items-center justify-center text-s px-3 py-1.5 bg-black text-white hover:bg-gray-800 m-3"
             onClick={handleManage}
           >
             Manage

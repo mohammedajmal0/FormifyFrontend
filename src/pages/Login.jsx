@@ -8,7 +8,9 @@ import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { BASE_URL } from '../../config'
 import Loader from '../components/commonComponents/Loader'
-
+import {Toaster} from '@/components/ui/toaster'
+import { useToast } from "@/hooks/use-toast"
+ 
 const Login = () => {
   const [email,setEmail]=useState('')
   const [password,setPassword]=useState('')
@@ -16,6 +18,7 @@ const Login = () => {
   const [isLoading,setIsLoading]=useState(false)
   const {authToken,login}=useAuth()
   const navigate=useNavigate()
+  const {toast}=useToast()
 
   const handleSubmit=async(e)=>{
     e.preventDefault()
@@ -30,6 +33,11 @@ const Login = () => {
       })
 
       if(!response.ok){
+        toast({
+          title: "Login failed!",
+          description: "user doent exits or wrong password",
+          variant: "destructive",
+        })
         throw new Error(`Response status : ${response.status}`)
       }
       const result=await response.json()
@@ -91,6 +99,7 @@ const Login = () => {
           </p>
         </CardFooter>
       </Card>
+      <Toaster/>
     </div>
   )
 }

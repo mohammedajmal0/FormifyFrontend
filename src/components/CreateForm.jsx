@@ -20,9 +20,11 @@ import {
 import { PlusCircle, ChevronDown, X, ArrowLeft, Copy, Check } from 'lucide-react'
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Toaster } from "@/components/ui/toaster"
 import { useAuth } from '../context/AuthContext'
+import { BASE_URL, FE_URL } from '../../config.jsx'
+import FormSetting from '../pages/FormSetting.jsx'
 
 const CreateForm = () => {
   const [formTitle, setFormTitle] = useState('')
@@ -35,6 +37,8 @@ const CreateForm = () => {
   const [shareLink,setShareLink]=useState('')
   const { toast } = useToast()
   const {authToken}=useAuth()
+  const {formId}=useParams()
+
   const questionTypes = [
     'Multiple Choice',
     'Multiple Option',
@@ -48,12 +52,37 @@ const CreateForm = () => {
     if (questions.length === 0) {
       addQuestion('Multiple Option')
     }
-  }, [])
+
+    if(formId){
+      const fetchForm=async()=>{
+        try {
+          const response=await fetch(`${BASE_URL}/form/${formId}`,{
+            method:"GET",
+            headers:{
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            }
+          })
+          if(!response.ok){
+            throw new Error("Unable to get form")
+          }
+          const result=await response.json()
+          setFormTitle(result.content.title||"")
+          setFormDescription(result.content.description||"")
+          setQuestions(result.content.questions||[])
+        } catch (error) {
+          console.log("error :",error);
+        }
+      }
+
+      fetchForm();
+    }
+  }, [formId,authToken])
 
   const addQuestion = (type) => {
     setQuestions([...questions, { 
       type, 
-      content: '',
+      question: '',
       description: '',
       options: type === 'Multiple Choice' || type === 'Multiple Option' ? ['Option 1', 'Option 2'] : []
     }])
@@ -63,6 +92,11 @@ const CreateForm = () => {
     const newQuestions = [...questions]
     newQuestions[questionIndex].options.push('')
     setQuestions(newQuestions)
+    // setQuestions((prev)=>
+    //   prev.map((q,index)=>{
+    //     index===questionIndex ? {...q,options:[...q.options,""]} : q
+    //   })
+    // )
   }
 
   const updateQuestion = (index, field, value) => {
@@ -83,7 +117,18 @@ const CreateForm = () => {
     const newQuestions = [...questions]
     newQuestions[questionIndex].options.splice(optionIndex, 1)
     setQuestions(newQuestions)
+
+    // setQuestions((prev)=>{
+    //   prev.map((q,index)=>{
+    //     index==questionIndex ? {...q,options:q.options.filter((_,optIndex)=>{optIndex!==optionIndex})} : q
+    //   })
+    // })
   }
+  const removeQuestion = (questionIndex) => {
+    const newQuestions = [...questions]; // Create a shallow copy of the array
+    newQuestions.splice(questionIndex, 1); // Remove the question at the specified index
+    setQuestions(newQuestions); // Update the state with the modified array
+  };
 
   const handleGoBackClick = () => {
     setIsGoBackDialogOpen(true)
@@ -93,14 +138,37 @@ const CreateForm = () => {
     navigate("/dashboard")
   }
 
-  const handleSaveAndGoBack = () => {
+  const handleSaveAndGoBack = async() => {
+    const url = formId ? `${BASE_URL}/form/${formId}` : `${BASE_URL}/form`;
+    const method = formId ? "PUT" : "POST"; 
     if (validateForm()) {
-      // Here you would typically save the form data to your backend
+      try {
+        const response=await fetch(url,{
+          method:method,
+          headers:{
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body:JSON.stringify({
+            title:formTitle,
+            description:formDescription,
+            questions:questions
+          })
+        })
+        if(!response.ok){
+          throw new Error("Error while saving form")
+        }
+      } catch (error) {
+        console.log("error :",error);
+      }
       console.log('Form saved:', { formTitle, formDescription, questions })
       navigate("/dashboard")
     }
   }
 
+  const handleShareModelClose=()=>{
+    navigate('/dashboard')
+  }
   const validateForm = () => {
     if (!formTitle.trim()) {
       toast({
@@ -129,11 +197,44 @@ const CreateForm = () => {
     return true
   }
 
-  const handleSave = () => {
+  const handleSave = async() => {
+
+    const url = formId ? `${BASE_URL}/form/${formId}` : `${BASE_URL}/form`;
+    const method = formId ? "PUT" : "POST"; 
     if (validateForm()) {
-      // Here you would typically save the form data to your backend
-      console.log('Form saved:', { formTitle, formDescription, questions })
-      setIsShareModalOpen(true)
+
+      try {
+        const response=await fetch(url,{
+          method:method,
+          headers:{
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body:JSON.stringify({
+            title:formTitle,
+            description:formDescription,
+            questions:questions
+          })
+        })
+
+        if(!response.ok){
+          throw new Error("Response not ok , unable to save form")
+        }
+        const result=await response.json()
+        console.log(result);
+        setShareLink(`${FE_URL}/form/response/${result.content._id}`)
+        toast({
+          title:"form saved"
+        })
+        if(formId)
+        setIsShareModalOpen(true)
+        else
+        navigate('/dashboard')
+        
+      } catch (error) {
+        console.error("Error saving form:", error.message);
+      }
+      console.log("Saved form ", questions);
     }
   }
 
@@ -156,7 +257,7 @@ const CreateForm = () => {
             Go Back
           </Button>
         </div>
-        <h1 className="text-3xl font-bold mb-6">Create New Form</h1>
+        {formId ? (<h1 className="text-3xl font-bold mb-6">Edit Form</h1>):(<h1 className="text-3xl font-bold mb-6">Create New Form</h1>)}
         <Tabs defaultValue="edit-form" className="mb-6">
           <TabsList>
             <TabsTrigger value="edit-form">Edit Form</TabsTrigger>
@@ -187,13 +288,23 @@ const CreateForm = () => {
               </div>
               {questions.map((question, questionIndex) => (
                 <div key={questionIndex} className="p-4 border rounded-md space-y-4 bg-white">
+                  <div className="flex justify-between items-center">
                   <h3 className="font-semibold">Question {questionIndex + 1}: {question.type}</h3>
+                   <Button className=""
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeQuestion(questionIndex)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                  </div>
+                  
                   <div>
                     <Label htmlFor={`question-${questionIndex}`}>Question</Label>
                     <Input
                       id={`question-${questionIndex}`}
-                      value={question.content}
-                      onChange={(e) => updateQuestion(questionIndex, 'content', e.target.value)}
+                      value={question.question}
+                      onChange={(e) => updateQuestion(questionIndex, 'question', e.target.value)}
                       placeholder="Enter your question"
                       className="mt-1"
                     />
@@ -266,14 +377,18 @@ const CreateForm = () => {
             </div>
           </TabsContent>
           <TabsContent value="settings">
-            <div className="p-4 bg-white rounded-md">
-              <h2 className="text-xl font-semibold mb-4">Form Settings</h2>
-              <p>Form settings and configuration options will be available here.</p>
-            </div>
+
+              <FormSetting formId={formId}/>
+
           </TabsContent>
         </Tabs>
       </div>
-      <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
+      <Dialog open={isShareModalOpen} onOpenChange={(isShareModalOpen)=>{
+        setIsShareModalOpen;
+        if(!isShareModalOpen){
+          handleShareModelClose()
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Share Your Form</DialogTitle>
