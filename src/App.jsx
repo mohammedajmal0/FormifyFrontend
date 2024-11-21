@@ -4,7 +4,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Navigate,
-  useNavigate,
 } from "react-router-dom";
 
 import { useAuth } from "./context/AuthContext";
@@ -19,6 +18,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import CreateForm from "./components/CreateForm";
+import FormResponse from "./components/formResponse.jsx";
 
 
 const App = () => {
@@ -33,7 +33,7 @@ const App = () => {
 
   return (
     <Router>
-      <Navbar />
+       <Navbar />
       <div className="App">
         <Routes>
         <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
@@ -46,7 +46,21 @@ const App = () => {
           <Route path='/form/:formId?' element={<PrivateRoute>
             <CreateForm/>
           </PrivateRoute>}/>
-
+          <Route
+          path="/form/response/:formId" element={
+          <>
+            <nav className="bg-white shadow-sm">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between h-16 items-center">
+                  <div className="flex-shrink-0">
+                    <span className="text-2xl font-bold">Formify</span>
+                  </div>
+                </div>
+              </div>
+            </nav>
+            <FormResponse />
+          </>}
+          />
           {/* If the user is not authenticated, they will be redirected to the login page */}
           <Route path="*" element={ <NotFound/>} />
         </Routes>
