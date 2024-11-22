@@ -18,7 +18,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import CreateForm from "./components/CreateForm";
-import FormResponse from "./components/formResponse.jsx";
+import FormResponse from "./components/FormResponse.jsx";
 
 
 const App = () => {
