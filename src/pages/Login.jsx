@@ -53,9 +53,11 @@ const Login = () => {
       setIsLoading(false)
     }
   }
-  if(authToken){
-    navigate('/dashboard')
-  }
+  useEffect(()=>{
+    if(authToken){
+      navigate('/dashboard')
+    }
+  },[authToken])
   return (
     <div className='p-4 bg-gray-100 flex items-center min-h-screen justify-center'>
       <Card className='w-full max-w-md' >

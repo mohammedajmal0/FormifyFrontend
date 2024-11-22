@@ -25,6 +25,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { useAuth } from '../context/AuthContext'
 import { BASE_URL, FE_URL } from '../../config.jsx'
 import FormSetting from '../pages/FormSetting.jsx'
+import FormResponses from '../pages/Responses.jsx'
 
 const CreateForm = () => {
   const [formTitle, setFormTitle] = useState('')
@@ -371,10 +372,9 @@ const CreateForm = () => {
             </div>
           </TabsContent>
           <TabsContent value="responses">
-            <div className="p-4 bg-white rounded-md">
-              <h2 className="text-xl font-semibold mb-4">Responses</h2>
-              <p>No responses yet. Responses will appear here once your form is published and people start submitting answers.</p>
-            </div>
+
+            <FormResponses formId={formId}/>
+            
           </TabsContent>
           <TabsContent value="settings">
 

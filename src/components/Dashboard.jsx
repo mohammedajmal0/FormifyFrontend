@@ -9,41 +9,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { BLoader } from './commonComponents/BigLoader.jsx'
 import {Toaster} from '@/components/ui/toaster'
 import {useToast} from '@/hooks/use-toast'
-const mockForms = [
-  {
-    id: 1,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 2,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 3,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  },
-  {
-    id: 4,
-    title: "Untitled Form",
-    description: "Add Description",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    questionCount: 4,
-    submissionCount: 0,
-  }
-  // Add more mock data as needed
-]
+
 
 
 const Dashboard = () => {

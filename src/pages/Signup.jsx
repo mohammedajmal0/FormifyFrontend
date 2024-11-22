@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -49,9 +49,12 @@ const Signup = () => {
 
   }
 
-  if(authToken){
-    navigate('/dashboard')
-  }
+  useEffect(()=>{
+    if(authToken){
+      navigate('/dashboard')
+    }
+  },[authToken])
+  
   return (
     <>
     <div className='min-h-screen bg-gray-100 flex items-center justify-center p-4'>
