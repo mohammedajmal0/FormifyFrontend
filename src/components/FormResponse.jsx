@@ -60,6 +60,11 @@ const FormResponse = () => {
     setResponses({})
   }
 
+  const handleSubmitAgain=()=>{
+    setResponses({})
+    setSubmitSuccess(false)
+  }
+  
   const handleShareForm = () => {
    
     navigator.clipboard.writeText(window.location.href)
@@ -127,7 +132,7 @@ const FormResponse = () => {
             <CardDescription>Thank you for your response!</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button onClick={() => setSubmitSuccess(false)} className="w-full">
+            <Button onClick={handleSubmitAgain} className="w-full">
               Submit Form Again
             </Button>
             <Button onClick={handleShareForm} className="w-full">
