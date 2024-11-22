@@ -23,7 +23,7 @@ const FormCard = ({ form }) => {
 
   const handleManage = (e) => {
     e.stopPropagation()
-    navigate(`/manage/${form._id}`)
+    navigate(`/form/${form._id}`)
   }
 
   return (
